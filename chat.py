@@ -12,7 +12,7 @@ from googletrans import Translator
 
 st.title("Awosome ChatBot")
 menu= ["Home", "Back"]
-choice = st.sidebar.selectbox("Menu",menu)
+choice = st.sidebar.selectbox("Menu",menu)j
 
 answers_list = []
 sentence1_list = []
@@ -82,7 +82,7 @@ if choice=='Home':
 
             
         def get_text():
-            input_text = st.text_input("You: ","Hello, how are you?", key=f"input")
+            input_text = st.text_input("You: ","", key=f"input")
             return input_text 
 
         # while True:
@@ -95,90 +95,91 @@ if choice=='Home':
         # sentence1 = input(f"You: {st.text_area(label=f'chat{ccc}', key=f'kkk{ccc}')}")
         sentence1 = get_text()
         sentence1_list.append(sentence1)
-        #     # if sentence == "quit":
-        input_lang = detect(sentence1)
-        
-
-        if input_lang !='en':
-            sentence2 = translater.translate(sentence1,dest="en").text
-            prob,tag = input_predict(sentence2)
-        #============================funct================================================================================== 
-        # def input_predict():
-        #     if sentence2 == "quit":
-        #         # break
-        #         pass
-
-        #     # sentence = tokenize(sentence)# we need to tokenize the input sentence
-        #     sentence = tokenize(sentence2.text)#####################
-        #     X = bag_of_words(sentence, all_words) # check for bag of word=>remember it returns an numpy array
-        #     X = X.reshape(1, X.shape[0])# we need to give it one row because we have one sample(1,X.shape[0]==>the number of columns)==>our model expects this shape
-        #     X = torch.from_numpy(X).to(device) # turn it into pytorch tensor and then pass it to a device
-
-        #     # Prediction
-        #     output = model(X) #this will give us the prediction
-        #     _, predicted = torch.max(output, dim=1)
-
-        #     tag = tags[predicted.item()] #to get the actual tag
-        #     # we need to check if the probability of this tag is high enough
-        #     # look at the capture.png image again
-        #     probs = torch.softmax(output, dim=1)
-        #     prob = probs[0][predicted.item()]
-
-        #    return prob
-        #============================funct==================================================================================
-
-            if prob.item() > 0.75:
-                
-                # we need to find the corresponding intents: we loop over all the intents and check if the tag matches
-                for intent in intents['intents']:
-                    if tag == intent["tag"]:# if predicted tag is == to tag in our json file do the below things
-                        # print(f"{bot_name}: {random.choice(intent['responses'])}")# make a random choice in corresponding responses
-                        # st.write(f"{bot_name}: {random.choice(intent['responses'])}")##########################
-                        
-                        pred_sentence = random.choice(intent['responses'])
-                        sentence_pred_original = translater.translate(pred_sentence,dest=input_lang)
-                        
-                        st.session_state.past.append(sentence1)
-                        # st.session_state.generated.append(random.choice(intent['responses']))
-                        st.session_state.generated.append(sentence_pred_original.text)  
-                        if st.session_state['generated']:
-
-                            for i in range(len(st.session_state['generated'])-1, -1, -1):
-                                message(st.session_state["generated"][i], key=str(i))
-                                message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')  
-                                answers_list.append(st.session_state["generated"][i])            
-            else:
-
-                message(f"{bot_name}: I do not understand...")
-                
-                not_understood_list.append(sentence1)
-
-        else:
-            prob,tag= input_predict(sentence1)
+        if sentence1 != "":
+            input_lang = detect(sentence1)
             
-            if prob.item() > 0.75:
-                
-                # we need to find the corresponding intents: we loop over all the intents and check if the tag matches
-                for intent in intents['intents']:
-                    if tag == intent["tag"]:# if predicted tag is == to tag in our json file do the below things
-                        # print(f"{bot_name}: {random.choice(intent['responses'])}")# make a random choice in corresponding responses
-                        # st.write(f"{bot_name}: {random.choice(intent['responses'])}")##########################
-                        
-                        pred_sentence = random.choice(intent['responses'])
-                        #sentence_pred_original = translater.translate(pred_sentence,dest=input_lang)
-                        
-                        st.session_state.past.append(sentence1)
-                        # st.session_state.generated.append(random.choice(intent['responses']))
-                        st.session_state.generated.append(pred_sentence)  
-                        if st.session_state['generated']:
 
-                            for i in range(len(st.session_state['generated'])-1, -1, -1):
-                                message(st.session_state["generated"][i], key=str(i))
-                                message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')              
+            if input_lang !='en':
+                sentence2 = translater.translate(sentence1,dest="en").text
+                prob,tag = input_predict(sentence2)
+            #============================funct================================================================================== 
+            # def input_predict():
+            #     if sentence2 == "quit":
+            #         # break
+            #         pass
+
+            #     # sentence = tokenize(sentence)# we need to tokenize the input sentence
+            #     sentence = tokenize(sentence2.text)#####################
+            #     X = bag_of_words(sentence, all_words) # check for bag of word=>remember it returns an numpy array
+            #     X = X.reshape(1, X.shape[0])# we need to give it one row because we have one sample(1,X.shape[0]==>the number of columns)==>our model expects this shape
+            #     X = torch.from_numpy(X).to(device) # turn it into pytorch tensor and then pass it to a device
+
+            #     # Prediction
+            #     output = model(X) #this will give us the prediction
+            #     _, predicted = torch.max(output, dim=1)
+
+            #     tag = tags[predicted.item()] #to get the actual tag
+            #     # we need to check if the probability of this tag is high enough
+            #     # look at the capture.png image again
+            #     probs = torch.softmax(output, dim=1)
+            #     prob = probs[0][predicted.item()]
+
+            #    return prob
+            #============================funct==================================================================================
+
+                if prob.item() > 0.75:
+
+                    # we need to find the corresponding intents: we loop over all the intents and check if the tag matches
+                    for intent in intents['intents']:
+                        if tag == intent["tag"]:# if predicted tag is == to tag in our json file do the below things
+                            # print(f"{bot_name}: {random.choice(intent['responses'])}")# make a random choice in corresponding responses
+                            # st.write(f"{bot_name}: {random.choice(intent['responses'])}")##########################
+                            
+                            pred_sentence = random.choice(intent['responses'])
+                            sentence_pred_original = translater.translate(pred_sentence,dest=input_lang)
+                            
+                            st.session_state.past.append(sentence1)
+                            # st.session_state.generated.append(random.choice(intent['responses']))
+                            st.session_state.generated.append(sentence_pred_original.text)  
+                            if st.session_state['generated']:
+
+                                for i in range(len(st.session_state['generated'])-1, -1, -1):
+                                    message(st.session_state["generated"][i], key=str(i))
+                                    message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')  
+                                    answers_list.append(st.session_state["generated"][i])            
+                else:
+                    with col1:
+                        message(f"{bot_name}: I do not understand...")
+                        
+                        not_understood_list.append(sentence1)
+                        st.write("Birabaye")
+
             else:
-
-                message(f"{bot_name}: I do not understand...")
+                prob,tag= input_predict(sentence1)
                 
+                if prob.item() > 0.75:
+                    
+                    # we need to find the corresponding intents: we loop over all the intents and check if the tag matches
+                    for intent in intents['intents']:
+                        if tag == intent["tag"]:# if predicted tag is == to tag in our json file do the below things
+                            # print(f"{bot_name}: {random.choice(intent['responses'])}")# make a random choice in corresponding responses
+                            # st.write(f"{bot_name}: {random.choice(intent['responses'])}")##########################
+                            
+                            pred_sentence = random.choice(intent['responses'])
+                            #sentence_pred_original = translater.translate(pred_sentence,dest=input_lang)
+                            
+                            st.session_state.past.append(sentence1)
+                            # st.session_state.generated.append(random.choice(intent['responses']))
+                            st.session_state.generated.append(pred_sentence)  
+                            if st.session_state['generated']:
+
+                                for i in range(len(st.session_state['generated'])-1, -1, -1):
+                                    message(st.session_state["generated"][i], key=str(i))
+                                    message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')              
+                else:
+
+                    message(f"{bot_name}: I do not understand...")
+                    
 else:
     
     options1=["Training","DataView"]
