@@ -12,7 +12,7 @@ from googletrans import Translator
 
 st.title("Awosome ChatBot")
 menu= ["Home", "Back"]
-choice = st.sidebar.selectbox("Menu",menu)j
+choice = st.sidebar.selectbox("Menu",menu)
 
 answers_list = []
 sentence1_list = []
