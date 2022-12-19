@@ -25,7 +25,7 @@ if choice=='Home':
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')#we can check if gpu is available
 
-    with open('intents.json', 'r') as json_data:# we use our file
+    with open('intents.json', 'r',encoding='UTF-8') as json_data:# we use our file
         intents = json.load(json_data)# we load it
 
     FILE = "data.pth"
@@ -68,13 +68,14 @@ if choice=='Home':
         prob = probs[0][predicted.item()]
         return prob,tag
     
+    
     col1,col2 = st.columns(2)
 
     with col1:
-        st.title('HAYSTACK')
+        pass
 
     with col2:
-        bot_name = "Sam"
+        bot_name = "RSSB:"
         #st.markdown(bot_name)####################################
         # print("Let's chat! (type 'quit' to exit)")
         # st.write(f"Hello? My name is {bot_name}. I can here Every language.Let us chat!!!!") 
@@ -94,8 +95,9 @@ if choice=='Home':
         # sentence = "do you use credit cards?"
         # sentence1 = input(f"You: {st.text_area(label=f'chat{ccc}', key=f'kkk{ccc}')}")
         sentence1 = get_text()
-        sentence1_list.append(sentence1)
+        
         if sentence1 != "":
+            sentence1_list.append(sentence1)
             input_lang = detect(sentence1)
             
 
@@ -148,11 +150,10 @@ if choice=='Home':
                                     message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')  
                                     answers_list.append(st.session_state["generated"][i])            
                 else:
-                    with col1:
-                        message(f"{bot_name}: I do not understand...")
-                        
-                        not_understood_list.append(sentence1)
-                        st.write("Birabaye")
+                    message(f"{bot_name}: I do not understand...")
+                    
+                    not_understood_list.append(sentence1)
+                    
 
             else:
                 prob,tag= input_predict(sentence1)
@@ -218,8 +219,8 @@ else:
                     print(st.success("go to the next form!!!."))
             else:
                 print(st.error("please fill all the patterns!!!."))        
-        print(st.success("1 tag is enough!!!."))
-        print(st.success("go to the next form!!!."))
+        # print(st.success("1 tag is enough!!!."))
+        # print(st.success("go to the next form!!!."))
         if st.button("Train"):
             st.write("Training is in progress...")
             st.warning("Please wait for a while!!!")
@@ -230,24 +231,27 @@ else:
 
         
         
-    if choice2=="DataView":
+    elif choice2=="DataView":
         if st.button("View Data"):
-                with open('non_understood_View.json','w+') as json_dataView:
-                    resp = json.load(json_dataView)
-                for indexx,item in enumerate(not_understood_list):
-                    temp = {f"tag{indexx}":item,
-                            f"patterns{indexx}": item,
-                            f"responses{indexx}": 'Sorry, I do not understand'
-                    }
-                temp1 = {"asked_questions":sentence1_list,
-                    "responses": answers_list
-                    }
-                resp['QUESTIONS'].append(temp)
-                intents['MISUNDERSTOOD'].append(temp1)
-                with open('respMisunderstood.json', 'w+') as f:
-                    json.dump(resp, f)
+            with open('non_understood_View.json','w+') as json_dataView:
+                resp = json.load(json_dataView)
+            for indexx,item in enumerate(not_understood_list):
+                temp = {f"tag{indexx}":item,
+                        f"patterns{indexx}": item,
+                        f"responses{indexx}": 'Sorry, I do not understand'
+                }
+            temp1 = {"asked_questions":sentence1_list,
+                "responses": answers_list
+                }
+            resp['QUESTIONS'].append(temp)
+            resp['MISUNDERSTOOD'].append(temp1)
+            with open('respMisunderstood.json', 'w+') as f:
+                json.dump(resp, f)
+            
+            st.write('JSON FILE')
+                
 
         else:
             print(st.error("please fill all the patterns!!!.")) 
-        st.write()
+            st.write()
         

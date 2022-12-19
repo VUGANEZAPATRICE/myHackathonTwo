@@ -1,10 +1,15 @@
 import random
 import json
-
 import torch
-
-from model import NeuralNet
+from model import NeuralNet# we import our model
 from nltk_utils import bag_of_words, tokenize
+import streamlit as st
+import keyboard
+from streamlit_chat import message
+from langdetect import detect
+from googletrans import Translator
+
+trans = Translator()
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -47,15 +52,43 @@ def get_response(msg):
     
     return "I do not understand..."
 
+# ======================================================================
 
-if __name__ == "__main__":
-    print("Let's chat! (type 'quit' to exit)")
-    while True:
-        # sentence = "do you use credit cards?"
-        sentence = input("You: ")
+
+def translate_input_model(input_msg, input_lang):
+    model_input_lag = trans.translate(input_msg, dest="en", src=input_lang).text
+    return model_input_lag
+
+def translate_output_model(out_msg,input_lang):
+    model_out_lang = trans.translate(out_msg,dest=input_lang, src='en').text
+    return model_out_lang
+    
+# def processed_response():
+    
+while True:
+    # sentence = "do you use credit cards?"
+    sentence = input("You: ")
+    if sentence !="":
         if sentence == "quit":
             break
+    input_lang = detect(sentence)
+    input_sentence = translate_input_model(sentence,input_lang)
+    model_out =get_response(input_sentence)
+    out_sentence = translate_output_model(model_out,input_lang)
+    print(out_sentence)
+    # return out_sentence
 
-        resp = get_response(sentence)
-        print(resp)
+
+# if __name__ == "__main__":
+    # print("Let's chat! (type 'quit' to exit)")
+    # while True:
+    #     # sentence = "do you use credit cards?"
+    #     sentence = input("You: ")
+    #     if sentence == "quit":
+    #         break
+
+    #     resp = get_response(sentence)
+    #     print(resp)
+        
+    # print(processed_response())
 
