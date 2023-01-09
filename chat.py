@@ -8,6 +8,11 @@ import keyboard
 from streamlit_chat import message
 from langdetect import detect
 from googletrans import Translator
+import detectlanguage
+import pandas as pd
+
+# detectlanguage.configuration.api_key = "d517ab9fde07ea1cdd40e23cc4def468"
+
 
 
 st.title("Awosome ChatBot")
@@ -15,8 +20,8 @@ menu= ["Home", "Back"]
 choice = st.sidebar.selectbox("Menu",menu)
 
 answers_list = []
-sentence1_list = []
-not_understood_list=[]
+questions_list =""
+not_understood_list=""
 
 if choice=='Home':
         
@@ -97,36 +102,15 @@ if choice=='Home':
         sentence1 = get_text()
         
         if sentence1 != "":
-            sentence1_list.append(sentence1)
+            questions_list=sentence1
             input_lang = detect(sentence1)
+            # input_lang = detectlanguage.simple_detect(sentence1)
             
 
             if input_lang !='en':
                 sentence2 = translater.translate(sentence1,dest="en").text
                 prob,tag = input_predict(sentence2)
             #============================funct================================================================================== 
-            # def input_predict():
-            #     if sentence2 == "quit":
-            #         # break
-            #         pass
-
-            #     # sentence = tokenize(sentence)# we need to tokenize the input sentence
-            #     sentence = tokenize(sentence2.text)#####################
-            #     X = bag_of_words(sentence, all_words) # check for bag of word=>remember it returns an numpy array
-            #     X = X.reshape(1, X.shape[0])# we need to give it one row because we have one sample(1,X.shape[0]==>the number of columns)==>our model expects this shape
-            #     X = torch.from_numpy(X).to(device) # turn it into pytorch tensor and then pass it to a device
-
-            #     # Prediction
-            #     output = model(X) #this will give us the prediction
-            #     _, predicted = torch.max(output, dim=1)
-
-            #     tag = tags[predicted.item()] #to get the actual tag
-            #     # we need to check if the probability of this tag is high enough
-            #     # look at the capture.png image again
-            #     probs = torch.softmax(output, dim=1)
-            #     prob = probs[0][predicted.item()]
-
-            #    return prob
             #============================funct==================================================================================
 
                 if prob.item() > 0.75:
@@ -138,21 +122,33 @@ if choice=='Home':
                             # st.write(f"{bot_name}: {random.choice(intent['responses'])}")##########################
                             
                             pred_sentence = random.choice(intent['responses'])
-                            sentence_pred_original = translater.translate(pred_sentence,dest=input_lang)
+                            sentence_pred_original = translater.translate(pred_sentence,dest=input_lang).text
                             
                             st.session_state.past.append(sentence1)
                             # st.session_state.generated.append(random.choice(intent['responses']))
-                            st.session_state.generated.append(sentence_pred_original.text)  
+                            st.session_state.generated.append(sentence_pred_original)  
                             if st.session_state['generated']:
 
                                 for i in range(len(st.session_state['generated'])-1, -1, -1):
                                     message(st.session_state["generated"][i], key=str(i))
                                     message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')  
-                                    answers_list.append(st.session_state["generated"][i])            
+                            # answers_list=sentence_pred_original.text            
                 else:
-                    message(f"{bot_name}: I do not understand...")
                     
-                    not_understood_list.append(sentence1)
+                    # message(f"{bot_name}: I do not understand...")
+                    # message(sentence1)
+                    sentence_pred_original = translater.translate(" I do not understand...",dest=input_lang).text
+                    st.session_state.past.append(sentence1)
+                    # st.session_state.generated.append(random.choice(intent['responses']))
+                    st.session_state.generated.append(sentence_pred_original)  
+                    if st.session_state['generated']:
+
+                        for i in range(len(st.session_state['generated'])-1, -1, -1):
+                            message(st.session_state["generated"][i], key=str(i))
+                            message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')  
+                            #answers_list.append(st.session_state["generated"][i])                                
+                    
+                    answers_list=" I do not understand..."
                     
 
             else:
@@ -176,12 +172,24 @@ if choice=='Home':
 
                                 for i in range(len(st.session_state['generated'])-1, -1, -1):
                                     message(st.session_state["generated"][i], key=str(i))
-                                    message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')              
+                                    message(st.session_state['past'][i], is_user=True, key=str(i) + '_user') 
+                            answers_list=pred_sentence              
                 else:
 
                     message(f"{bot_name}: I do not understand...")
+                    message(sentence1)
+                    answers_list=" I do not understand..."
                     
-else:
+# df = pd.read_csv("chat.csv")
+# # for i in range(len(questions_list)):
+    
+# df["questions"]= questions_list
+# df["responses"]=answers_list
+# st.dataframe(df)
+
+
+                    
+if choice=='Back':
     
     options1=["Training","DataView"]
     choice2 = st.sidebar.selectbox("Options:",options1)
@@ -206,7 +214,7 @@ else:
         if submit:
             if pattern1 and pattern2 and pattern3 and pattern4 and pattern5 !='':
                 if response1 and response2 and response3 and response4 and response5 !='':
-                    with open('intents.json') as json_data:
+                    with open('intents.json', encoding='UTF-8') as json_data:
                         intents = json.load(json_data)
                     temp = {"tag": Tag,
                             "patterns": [pattern1,pattern2,pattern3,pattern4,pattern5],
@@ -231,27 +239,27 @@ else:
 
         
         
-    elif choice2=="DataView":
+    if choice2=="DataView":
         if st.button("View Data"):
-            with open('non_understood_View.json','w+') as json_dataView:
+            # temp1={}
+            # temp1["questions"]=questions_list
+            # temp1["responses"]=answers_list
+            #st.write(temp1)
+            # st.dataframe(df)
+         
+            # with open('questions_answers.json', 'w+') as f:
+            #     json.dump(temp1,f)
+                
+            with open('questions_answers.json','r') as json_dataView:
                 resp = json.load(json_dataView)
-            for indexx,item in enumerate(not_understood_list):
-                temp = {f"tag{indexx}":item,
-                        f"patterns{indexx}": item,
-                        f"responses{indexx}": 'Sorry, I do not understand'
-                }
-            temp1 = {"asked_questions":sentence1_list,
-                "responses": answers_list
-                }
-            resp['QUESTIONS'].append(temp)
-            resp['MISUNDERSTOOD'].append(temp1)
-            with open('respMisunderstood.json', 'w+') as f:
-                json.dump(resp, f)
+                
+            st.write(resp)
             
-            st.write('JSON FILE')
+                
+            f1=open('questions_answers.json')
+            resp1 = json.load(f1)
+            st.write(resp1)
                 
 
-        else:
-            print(st.error("please fill all the patterns!!!.")) 
-            st.write()
+
         
